@@ -30,7 +30,7 @@
 
 ## Domain setup
 
-> NextDNS supports updating Linked IP via a DDNS hostname. If you're already using a DDNS service, configure your DDNS domain in the Linked IP card instead.
+NextDNS supports updating Linked IP via a DDNS hostname. If you're already using a DDNS service, configure your DDNS domain in the Linked IP card instead.
 
 - Create an account on the [nextdns website](https://nextdns.io/)
 - Go to your [account page](https://my.nextdns.io/), login and setup Linked IP
