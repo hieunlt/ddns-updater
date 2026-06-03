@@ -37,4 +37,4 @@
 - Click `Show advanced options` button and copy the endpoint from the Linked IP card
 - Update the configuration file with the endpoint
 
-_See the [nextdns website](https://nextdns.io/)_
+See the [nextdns website](https://nextdns.io/)
