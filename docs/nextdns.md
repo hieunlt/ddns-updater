@@ -32,9 +32,9 @@
 
 NextDNS supports updating Linked IP via a DDNS hostname. If you're already using a DDNS service, configure your DDNS domain in the Linked IP card instead.
 
-- Create an account on the [nextdns website](https://nextdns.io/)
-- Go to your [account page](https://my.nextdns.io/), login and setup Linked IP
-- Click `Show advanced options` button and copy the endpoint from the Linked IP card
-- Update the configuration file with the endpoint
+1. Create an account on the [nextdns website](https://nextdns.io/)
+1. Go to your [account page](https://my.nextdns.io/), login and setup Linked IP
+1. Click `Show advanced options` button and copy the endpoint from the Linked IP card
+1. Update the configuration file with the endpoint
 
 See the [nextdns website](https://nextdns.io/)
