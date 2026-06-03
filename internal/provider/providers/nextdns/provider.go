@@ -8,7 +8,6 @@ import (
 	"net/netip"
 	"net/url"
 	"regexp"
-	"strings"
 
 	"github.com/qdm12/ddns-updater/internal/models"
 	"github.com/qdm12/ddns-updater/internal/provider/constants"
@@ -25,14 +24,10 @@ type Provider struct {
 	endpoint   string
 }
 
-func New(data json.RawMessage, domain, owner string,
+func New(data json.RawMessage, _, _ string,
 	ipVersion ipversion.IPVersion, ipv6Suffix netip.Prefix) (
 	provider *Provider, err error,
 ) {
-	if owner == "link-ip" || domain == "" {
-		domain = "link-ip.nextdns.io"
-		owner = "@"
-	}
 	var providerSpecificSettings struct {
 		Endpoint string `json:"endpoint"`
 	}
@@ -41,14 +36,14 @@ func New(data json.RawMessage, domain, owner string,
 		return nil, fmt.Errorf("json decoding provider specific settings: %w", err)
 	}
 
-	err = validateSettings(domain, owner, providerSpecificSettings.Endpoint)
+	err = validateSettings(providerSpecificSettings.Endpoint)
 	if err != nil {
 		return nil, fmt.Errorf("validating provider specific settings: %w", err)
 	}
 
 	return &Provider{
-		domain:     domain,
-		owner:      owner,
+		domain:     "link-ip.nextdns.io",
+		owner:      "@",
 		ipVersion:  ipVersion,
 		ipv6Suffix: ipv6Suffix,
 		endpoint:   providerSpecificSettings.Endpoint,
@@ -59,18 +54,8 @@ var (
 	endpointRegex = regexp.MustCompile(`^[0-9a-fA-F]{6}\/[0-9a-fA-F]{16}$`)
 )
 
-func validateSettings(domain, owner, endpoint string) (err error) {
-	err = utils.CheckDomain(domain)
-	if err != nil {
-		return fmt.Errorf("%w: %w", errors.ErrDomainNotValid, err)
-	}
-	switch {
-	case !strings.HasSuffix(domain, "nextdns.io"):
-		return fmt.Errorf(`%w: %q must end with "%s"`,
-			errors.ErrDomainNotValid, domain, "nextdns.io")
-	case owner == "*":
-		return fmt.Errorf("%w: %s", errors.ErrOwnerWildcard, owner)
-	case !endpointRegex.MatchString(endpoint):
+func validateSettings(endpoint string) (err error) {
+	if !endpointRegex.MatchString(endpoint) {
 		return fmt.Errorf("%w: endpoint %q does not match regex %q",
 			errors.ErrTokenNotValid, endpoint, endpointRegex)
 	}
