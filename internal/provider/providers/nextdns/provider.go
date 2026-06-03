@@ -43,8 +43,8 @@ func New(data json.RawMessage, _, _ string,
 	}
 
 	return &Provider{
-		domain:     "link-ip.nextdns.io",
-		owner:      "@",
+		domain:     "nextdns.io",
+		owner:      "link-ip",
 		ipVersion:  ipVersion,
 		ipv6Suffix: ipv6Suffix,
 		endpointID: providerSpecificSettings.EndpointID,
@@ -102,7 +102,7 @@ func (p *Provider) HTML() models.HTMLRow {
 func (p *Provider) Update(ctx context.Context, client *http.Client, ip netip.Addr) (newIP netip.Addr, err error) {
 	u := url.URL{
 		Scheme: "https",
-		Host:   p.Domain(),
+		Host:   p.BuildDomainName(),
 		Path:   p.endpointID + "/" + p.apiGUID,
 	}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
