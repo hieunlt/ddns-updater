@@ -9,7 +9,8 @@
   "settings": [
     {
       "provider": "nextdns",
-      "endpoint": "abcdef/0123456789abcdef",
+      "endpoint_id": "abcdef",
+      "api_guid": "0123456789abcdef",
       "ip_version": "ipv4",
       "ipv6_suffix": ""
     }
@@ -19,7 +20,8 @@
 
 ### Compulsory parameters
 
-- `"endpoint"` is the Linked IP endpoint from your NextDNS account. It has the format `<Endpoint ID>/<API GUID>`, where the Endpoint ID is 6 hexadecimal characters and the API GUID is 16 hexadecimal characters (e.g. `abcdef/0123456789abcdef`).
+- `"endpoint_id"` is the first path segment of the Linked IP update URL.
+- `"api_guid"` is the second path segment of the Linked IP update URL.
 
 ### Optional parameters
 
@@ -35,7 +37,7 @@ NextDNS supports updating Linked IP via a DDNS hostname. If you're already using
 1. Create an account on the [nextdns website](https://nextdns.io/)
 1. Go to your [account page](https://my.nextdns.io/), login and setup Linked IP
 1. Click `Show advanced options` in the Linked IP card
-1. Copy the endpoint string — it looks like `abcdef/0123456789abcdef` (`<Endpoint ID>/<API GUID>`)
-1. Set `"endpoint"` in your configuration file to that value
+1. Copy the update URL shown — it looks like `https://link-ip.nextdns.io/abcdef/0123456789abcdef`
+1. Set `"endpoint_id"` to the first path segment (e.g. `abcdef`) and `"api_guid"` to the second path segment (e.g. `0123456789abcdef`)
 
 See the [nextdns website](https://nextdns.io/)

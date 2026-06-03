@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/netip"
 	"net/url"
-	"regexp"
 
 	"github.com/qdm12/ddns-updater/internal/models"
 	"github.com/qdm12/ddns-updater/internal/provider/constants"
@@ -21,7 +20,8 @@ type Provider struct {
 	owner      string
 	ipVersion  ipversion.IPVersion
 	ipv6Suffix netip.Prefix
-	endpoint   string
+	endpointID string
+	apiGUID    string
 }
 
 func New(data json.RawMessage, _, _ string,
@@ -29,14 +29,15 @@ func New(data json.RawMessage, _, _ string,
 	provider *Provider, err error,
 ) {
 	var providerSpecificSettings struct {
-		Endpoint string `json:"endpoint"`
+		EndpointID string `json:"endpoint_id"`
+		APIGUID    string `json:"api_guid"`
 	}
 	err = json.Unmarshal(data, &providerSpecificSettings)
 	if err != nil {
 		return nil, fmt.Errorf("json decoding provider specific settings: %w", err)
 	}
 
-	err = validateSettings(providerSpecificSettings.Endpoint)
+	err = validateSettings(providerSpecificSettings.EndpointID, providerSpecificSettings.APIGUID)
 	if err != nil {
 		return nil, fmt.Errorf("validating provider specific settings: %w", err)
 	}
@@ -46,18 +47,17 @@ func New(data json.RawMessage, _, _ string,
 		owner:      "@",
 		ipVersion:  ipVersion,
 		ipv6Suffix: ipv6Suffix,
-		endpoint:   providerSpecificSettings.Endpoint,
+		endpointID: providerSpecificSettings.EndpointID,
+		apiGUID:    providerSpecificSettings.APIGUID,
 	}, nil
 }
 
-var (
-	endpointRegex = regexp.MustCompile(`^[0-9a-fA-F]{6}\/[0-9a-fA-F]{16}$`)
-)
-
-func validateSettings(endpoint string) (err error) {
-	if !endpointRegex.MatchString(endpoint) {
-		return fmt.Errorf("%w: endpoint %q does not match regex %q",
-			errors.ErrTokenNotValid, endpoint, endpointRegex)
+func validateSettings(endpointID, apiGUID string) error {
+	if endpointID == "" {
+		return fmt.Errorf("%w: endpoint_id is not set", errors.ErrEndpointNotValid)
+	}
+	if apiGUID == "" {
+		return fmt.Errorf("%w: api_guid is not set", errors.ErrEndpointNotValid)
 	}
 	return nil
 }
@@ -103,7 +103,7 @@ func (p *Provider) Update(ctx context.Context, client *http.Client, ip netip.Add
 	u := url.URL{
 		Scheme: "https",
 		Host:   p.Domain(),
-		Path:   p.endpoint,
+		Path:   p.endpointID + "/" + p.apiGUID,
 	}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
