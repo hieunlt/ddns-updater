@@ -121,9 +121,13 @@ func (p *Provider) Update(ctx context.Context, client *http.Client, ip netip.Add
 		return netip.Addr{}, fmt.Errorf("reading response: %w", err)
 	}
 
-	if response.StatusCode != http.StatusOK {
+	switch response.StatusCode {
+	case http.StatusOK:
+		return ip, nil
+	case http.StatusBadRequest:
+		return netip.Addr{}, fmt.Errorf("%w: %s", errors.ErrBadRequest, utils.ToSingleLine(s))
+	default:
 		return netip.Addr{}, fmt.Errorf("%w: %d: %s",
 			errors.ErrHTTPStatusNotValid, response.StatusCode, utils.ToSingleLine(s))
 	}
-	return ip, nil
 }
