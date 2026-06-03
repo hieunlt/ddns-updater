@@ -163,11 +163,6 @@ func makeSettingsFromObject(common commonSettings, rawSettings json.RawMessage,
 		common.Owner = common.Host
 	}
 
-	// NextDNS has a fixed domain — users don't need to specify it.
-	if common.Domain == "" && models.Provider(common.Provider) == constants.NextDNS {
-		common.Domain = "nextdns.io"
-	}
-
 	var domain string
 	var owners []string
 	if common.Owner != "" { // retro compatibility

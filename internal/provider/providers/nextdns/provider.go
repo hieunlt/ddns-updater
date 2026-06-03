@@ -24,10 +24,15 @@ type Provider struct {
 	apiGUID    string
 }
 
-func New(data json.RawMessage, _, _ string,
+func New(data json.RawMessage, domain, owner string,
 	ipVersion ipversion.IPVersion, ipv6Suffix netip.Prefix) (
 	provider *Provider, err error,
 ) {
+	if utils.BuildDomainName(owner, domain) != "link-ip.nextdns.io" {
+		return nil, fmt.Errorf("%w: domain must be link-ip.nextdns.io, got %s",
+			errors.ErrDomainNotValid, utils.BuildDomainName(owner, domain))
+	}
+
 	var providerSpecificSettings struct {
 		EndpointID string `json:"endpoint_id"`
 		APIGUID    string `json:"api_guid"`
@@ -43,8 +48,8 @@ func New(data json.RawMessage, _, _ string,
 	}
 
 	return &Provider{
-		domain:     "nextdns.io",
-		owner:      "link-ip",
+		domain:     domain,
+		owner:      owner,
 		ipVersion:  ipVersion,
 		ipv6Suffix: ipv6Suffix,
 		endpointID: providerSpecificSettings.EndpointID,
@@ -63,7 +68,7 @@ func validateSettings(endpointID, apiGUID string) error {
 }
 
 func (p *Provider) String() string {
-	return utils.ToString(p.domain, p.owner, constants.NextDNS, p.ipVersion)
+	return utils.ToString("nextdns.io", "link-ip", constants.NextDNS, p.ipVersion)
 }
 
 func (p *Provider) Domain() string {
@@ -103,7 +108,7 @@ func (p *Provider) Update(ctx context.Context, client *http.Client, ip netip.Add
 	u := url.URL{
 		Scheme: "https",
 		Host:   p.BuildDomainName(),
-		Path:   p.endpointID + "/" + p.apiGUID,
+		Path:   fmt.Sprintf("/%s/%s", p.endpointID, p.apiGUID),
 	}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
